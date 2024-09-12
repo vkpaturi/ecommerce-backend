@@ -1,6 +1,7 @@
 package com.project.spring.ecommercebackend.services;
 
 import com.project.spring.ecommercebackend.dtos.FakeStoreResponseDTO;
+import com.project.spring.ecommercebackend.exceptions.ProductNotFoundException;
 import com.project.spring.ecommercebackend.models.Category;
 import com.project.spring.ecommercebackend.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +25,11 @@ public class FakeStoreProductService implements ProductService{
     }
 
     @Override
-    public Product getSingleProduct(Long id) {
+    public Product getSingleProduct(Long id) throws ProductNotFoundException {
         FakeStoreResponseDTO responseDTO = restTemplate.getForObject("https://fakestoreapi.com/products/" + id, FakeStoreResponseDTO.class);
-        assert responseDTO != null;
+        if (responseDTO == null) {
+            throw new ProductNotFoundException("Product not found at id " + id );
+        }
         return convertDTOToObject(responseDTO);
     }
 

@@ -1,6 +1,7 @@
 package com.project.spring.ecommercebackend.controllers;
 
 import com.project.spring.ecommercebackend.dtos.FakeStoreResponseDTO;
+import com.project.spring.ecommercebackend.exceptions.ProductNotFoundException;
 import com.project.spring.ecommercebackend.models.Product;
 import com.project.spring.ecommercebackend.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public class ProductController {
 
     // localhost:8080/products/1
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getSingleProduct(@PathVariable("id") Long id) {
+    public ResponseEntity<Product> getSingleProduct(@PathVariable("id") Long id) throws ProductNotFoundException {
         return new ResponseEntity<>(productService.getSingleProduct(id), HttpStatus.OK);
     }
 
