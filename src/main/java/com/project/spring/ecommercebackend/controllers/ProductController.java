@@ -1,15 +1,15 @@
 package com.project.spring.ecommercebackend.controllers;
 
-import com.project.spring.ecommercebackend.dtos.FakeStoreResponseDTO;
 import com.project.spring.ecommercebackend.exceptions.ProductNotFoundException;
+import com.project.spring.ecommercebackend.models.Category;
 import com.project.spring.ecommercebackend.models.Product;
 import com.project.spring.ecommercebackend.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.http.HttpResponse;
 import java.util.List;
 
 @RestController
@@ -19,7 +19,7 @@ public class ProductController {
     private ProductService productService;
 
     @Autowired
-    public ProductController(ProductService productService) {
+    public ProductController(@Qualifier("selfProductService") ProductService productService) {
         this.productService = productService;
     }
 
@@ -39,7 +39,7 @@ public class ProductController {
 
     // localhost:8080/products --> Response same as the Fakestore one.
 //    @PostMapping()
-//    public FakeStoreResponseDTO addProduct(@RequestBody Product product) {
+//    public FakeStoreDTO addProduct(@RequestBody Product product) {
 //        return productService.addProduct(product);
 //    }
 
@@ -64,8 +64,13 @@ public class ProductController {
 
     // localhost:8080/products/1
     @DeleteMapping("/{id}")
-    public ResponseEntity<Product> deleteProduct(@PathVariable("id") Long id) {
+    public ResponseEntity<String> deleteProduct(@PathVariable("id") Long id) {
         return new ResponseEntity<>(productService.deleteProduct(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/categories/{name}")
+    public ResponseEntity<List<Product>> getProductsByCategoryByName(@PathVariable("name") String name) {
+        return new ResponseEntity<>(productService.getProductsByCategory(name), HttpStatus.OK);
     }
 
 }

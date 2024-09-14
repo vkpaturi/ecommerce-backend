@@ -1,6 +1,6 @@
 package com.project.spring.ecommercebackend.services;
 
-import com.project.spring.ecommercebackend.dtos.FakeStoreResponseDTO;
+import com.project.spring.ecommercebackend.dtos.FakeStoreDTO;
 import com.project.spring.ecommercebackend.exceptions.ProductNotFoundException;
 import com.project.spring.ecommercebackend.models.Category;
 import com.project.spring.ecommercebackend.models.Product;
@@ -26,7 +26,7 @@ public class FakeStoreProductService implements ProductService{
 
     @Override
     public Product getSingleProduct(Long id) throws ProductNotFoundException {
-        FakeStoreResponseDTO responseDTO = restTemplate.getForObject("https://fakestoreapi.com/products/" + id, FakeStoreResponseDTO.class);
+        FakeStoreDTO responseDTO = restTemplate.getForObject("https://fakestoreapi.com/products/" + id, FakeStoreDTO.class);
         if (responseDTO == null) {
             throw new ProductNotFoundException("Product not found at id " + id );
         }
@@ -36,9 +36,9 @@ public class FakeStoreProductService implements ProductService{
     @Override
     public List<Product> getAllProducts() {
         List<Product> products = new ArrayList<>();
-        FakeStoreResponseDTO[] responseDTO = restTemplate.getForObject("https://fakestoreapi.com/products", FakeStoreResponseDTO[].class);
+        FakeStoreDTO[] responseDTO = restTemplate.getForObject("https://fakestoreapi.com/products", FakeStoreDTO[].class);
         assert responseDTO != null;
-        for (FakeStoreResponseDTO object : responseDTO) {
+        for (FakeStoreDTO object : responseDTO) {
             products.add(convertDTOToObject(object));
         }
         return products;
@@ -46,44 +46,50 @@ public class FakeStoreProductService implements ProductService{
 
     @Override
     public Product addProduct(Product product) { // Remove convertDTOToObject and just send fakeStoreResponseDTO for FakeStore like response.
-        FakeStoreResponseDTO responseDTO = convertObjectToDTO(product);
-        FakeStoreResponseDTO fakeStoreResponseDTO = restTemplate.postForObject("https://fakestoreapi.com/products", responseDTO, FakeStoreResponseDTO.class);
+        FakeStoreDTO responseDTO = convertObjectToDTO(product);
+        FakeStoreDTO fakeStoreResponseDTO = restTemplate.postForObject("https://fakestoreapi.com/products", responseDTO, FakeStoreDTO.class);
         assert fakeStoreResponseDTO != null;
         return convertDTOToObject(fakeStoreResponseDTO);
     }
 
     @Override
     public Product updateProduct(Long id, Product product) {
-        FakeStoreResponseDTO request = convertObjectToDTO(product);
-        FakeStoreResponseDTO fakeStoreResponseDTO = restTemplate.patchForObject("https://fakestoreapi.com/products/" + id, request, FakeStoreResponseDTO.class);
+        FakeStoreDTO request = convertObjectToDTO(product);
+        FakeStoreDTO fakeStoreResponseDTO = restTemplate.patchForObject("https://fakestoreapi.com/products/" + id, request, FakeStoreDTO.class);
         assert fakeStoreResponseDTO != null;
         return convertDTOToObject(fakeStoreResponseDTO);
     }
 
     @Override
     public Product replaceProduct(Long id, Product product) {
-        FakeStoreResponseDTO request = convertObjectToDTO(product);
-        RequestCallback requestCallback = restTemplate.httpEntityCallback(request, FakeStoreResponseDTO.class);
-        HttpMessageConverterExtractor<FakeStoreResponseDTO> responseExtractor =
-                new HttpMessageConverterExtractor<>(FakeStoreResponseDTO.class, restTemplate.getMessageConverters());
-        FakeStoreResponseDTO response =  restTemplate.execute("https://fakestoreapi.com/products/" + id, HttpMethod.PUT, requestCallback, responseExtractor);
+        FakeStoreDTO request = convertObjectToDTO(product);
+        RequestCallback requestCallback = restTemplate.httpEntityCallback(request, FakeStoreDTO.class);
+        HttpMessageConverterExtractor<FakeStoreDTO> responseExtractor =
+                new HttpMessageConverterExtractor<>(FakeStoreDTO.class, restTemplate.getMessageConverters());
+        FakeStoreDTO response =  restTemplate.execute("https://fakestoreapi.com/products/" + id, HttpMethod.PUT, requestCallback, responseExtractor);
         assert response != null;
         return convertDTOToObject(response);
     }
 
     @Override
-    public Product deleteProduct(Long id) {
-//        RequestCallback requestCallback = restTemplate.httpEntityCallback(null, FakeStoreResponseDTO.class);
-       HttpMessageConverterExtractor<FakeStoreResponseDTO> responseExtractor =
-                new HttpMessageConverterExtractor<>(FakeStoreResponseDTO.class, restTemplate.getMessageConverters());
-        FakeStoreResponseDTO response =  restTemplate.execute("https://fakestoreapi.com/products/" + id, HttpMethod.DELETE, null, responseExtractor);
+    public String deleteProduct(Long id) {
+//        RequestCallback requestCallback = restTemplate.httpEntityCallback(null, FakeStoreDTO.class);
+       HttpMessageConverterExtractor<FakeStoreDTO> responseExtractor =
+                new HttpMessageConverterExtractor<>(FakeStoreDTO.class, restTemplate.getMessageConverters());
+        FakeStoreDTO response =  restTemplate.execute("https://fakestoreapi.com/products/" + id, HttpMethod.DELETE, null, responseExtractor);
         assert response != null;
-        return convertDTOToObject(response);
+        //return convertDTOToObject(response);
+        return "";
+    }
+
+    @Override
+    public List<Product> getProductsByCategory(String category) {
+        return List.of();
     }
 
 
     // Utility Methods
-    public Product convertDTOToObject(FakeStoreResponseDTO responseDTO) {
+    public Product convertDTOToObject(FakeStoreDTO responseDTO) {
         Product product = new Product();
         product.setId(responseDTO.getId());
         product.setTitle(responseDTO.getTitle());
@@ -96,8 +102,8 @@ public class FakeStoreProductService implements ProductService{
         return product;
     }
 
-    public FakeStoreResponseDTO convertObjectToDTO(Product product) {
-        FakeStoreResponseDTO fakeStoreResponseDTO = new FakeStoreResponseDTO();
+    public FakeStoreDTO convertObjectToDTO(Product product) {
+        FakeStoreDTO fakeStoreResponseDTO = new FakeStoreDTO();
         fakeStoreResponseDTO.setTitle(product.getTitle());
         fakeStoreResponseDTO.setDescription(product.getDescription());
         fakeStoreResponseDTO.setPrice(product.getPrice());
