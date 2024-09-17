@@ -15,7 +15,7 @@ import java.util.Date;
 // This is just a class for common attributes so using MappedSuperclass Attributes
 public class BaseModel {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Date created_At;
     private Date updated_At;
